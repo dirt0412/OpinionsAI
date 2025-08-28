@@ -1,0 +1,65 @@
+<div class="container">
+    <div class="card">
+        <h2>OpinionsAI — analiza produktu</h2>
+        <p class="subtitle">Wklej opinię; zobacz ocenę ogólną i aspekty.</p>
+
+        <div class="form-group">
+            <label for="opinion">Twoja opinia</label>
+            <textarea id="opinion" class="textarea" [(ngModel)]="text" rows="8"
+                placeholder="Np. Bateria trzyma długo, ale ekran mógłby być jaśniejszy.">
+      </textarea>
+            <div class="meta"><span>{{ text?.length || 0 }} znaków</span></div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" (click)="submit()" [disabled]="loading || !text?.trim()">Analizuj</button>
+            <button class="btn" (click)="reset()" [disabled]="loading && !result">Wyczyść</button>
+        </div>
+
+        <div class="status" *ngIf="loading">Analiza…</div>
+        <div class="alert alert-error" *ngIf="error">{{ error }}</div>
+
+        <!-- Wynik ogólny (zostawiamy istniejący widok) -->
+        <div class="result" *ngIf="result">
+            <div class="pill" [class.positive]="result.label === 1" [class.negative]="result.label === 0">
+                {{ result.label === 1 ? 'Pozytywny' : 'Negatywny' }}
+            </div>
+
+            <div class="prob" *ngIf="result.proba_positive !== null && result.proba_positive !== undefined">
+                <label>Pewność modelu</label>
+                <div class="progress">
+                    <div class="progress-bar" [style.width.%]="(result.proba_positive || 0) * 100"></div>
+                </div>
+                <div class="prob-value">{{ (result.proba_positive || 0) | percent:'1.0-1' }}</div>
+            </div>
+        </div>
+
+        <!-- ASPEKTY -->
+        <div class="aspects" *ngIf="analysis?.aspects?.length">
+            <h3>Aspekty</h3>
+            <div class="aspect" *ngFor="let a of analysis!.aspects">
+                <div class="chip" [class.good]="a.label===1" [class.bad]="a.label===0">
+                    {{ a.name }} — {{ (a.score*100) | number:'1.0-0' }}%
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" [style.width.%]="a.score * 100"></div>
+                </div>
+                <ul class="examples">
+                    <li *ngFor="let ex of a.examples">{{ ex }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TREND -->
+        <div class="trend">
+            <h3>Trend pozytywności (miesięcznie)</h3>
+            <div class="trend-controls">
+                <label>product_id</label>
+                <input type="text" [(ngModel)]="productId" placeholder="np. P001" class="input">
+                <button class="btn" (click)="loadTrend()">Pokaż trend</button>
+                <span class="muted" *ngIf="productName">({{ productName }})</span>
+            </div>
+            <canvas #trendCanvas class="trend-canvas"></canvas>
+        </div>
+    </div>
+</div>

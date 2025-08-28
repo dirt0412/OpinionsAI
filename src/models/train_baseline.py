@@ -7,14 +7,22 @@ from sklearn.pipeline import Pipeline
 from sklearn.metrics import classification_report
 import joblib
 
-CSV = Path("data/reviews.csv")
+CSV_EXT = Path("data/reviews_extended.csv")
+CSV_BASIC = Path("data/reviews.csv")
 MODEL_OUT = Path("models/baseline_tfidf_lr.joblib")
 MODEL_OUT.parent.mkdir(parents=True, exist_ok=True)
 
-if not CSV.exists():
-    raise FileNotFoundError(f"Brak pliku {CSV}. Wygeneruj go lub dodaj własny.")
+if CSV_EXT.exists():
+    df = pd.read_csv(CSV_EXT)
+elif CSV_BASIC.exists():
+    df = pd.read_csv(CSV_BASIC)
+else:
+    raise FileNotFoundError("Brak data/reviews_extended.csv i data/reviews.csv")
 
-df = pd.read_csv(CSV)
+# Oczekujemy kolumn 'text' i 'label'
+if not {"text","label"}.issubset(df.columns):
+    raise ValueError("CSV musi mieć kolumny 'text' i 'label'")
+
 X_train, X_test, y_train, y_test = train_test_split(
     df["text"], df["label"], test_size=0.2, random_state=42, stratify=df["label"]
 )
@@ -29,4 +37,4 @@ y_pred = pipe.predict(X_test)
 print(classification_report(y_test, y_pred))
 
 joblib.dump(pipe, MODEL_OUT)
-print(f"Zapisano model do {MODEL_OUT}")
+print(f"Zapisano model do {MODEL_OUT.resolve()}")

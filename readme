@@ -6,7 +6,43 @@ python scripts/generate_sample_data.py
 
 python src/models/train_baseline.py
 
+#-- zmiany w pliku csv-----
+conda activate opinionsai
+python src/models/train_baseline.py
+#---------------
+
+#start backend
+conda activate opinionsai
 uvicorn src.api.main:app --reload --port 8000
+#-----------
 
 Aplikacja - http://localhost:8000
 Swagger - http://localhost:8000/docs
+
+#angular frontend
+npx @angular/cli@14 new opinionsai-ui --routing --style=scss
+
+npm i -D @angular/cli@14 @angular-devkit/build-angular@14 @schematics/angular@14
+
+npx ng g s opinions-ai --skip-tests
+npx ng g c opinions-ai --skip-tests
+
+#frontend start
+npx ng serve
+#-------------
+
+#-- zmiany----------
+#Generuj oba pliki (domyślnie 5000 wierszy):
+python scripts/generate_sample_data.py
+
+#tylko basic
+python scripts/generate_sample_data.py --basic --size 4000
+
+#tylko extended
+python scripts/generate_sample_data.py --extended --size 6000
+
+#potem na koniec
+python src/models/train_baseline.py
+# i restart backendu:
+uvicorn src.api.main:app --reload --port 8000
+#----------------------
