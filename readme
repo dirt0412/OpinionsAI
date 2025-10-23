@@ -1,3 +1,4 @@
+## ( Start → Anaconda Prompt (miniconda/anaconda) )
 conda create -n opinai python=3.11 -y
 conda activate opinai
 pip install -r requirements.txt
